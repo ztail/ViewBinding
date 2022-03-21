@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using UnityEngine;
 
 namespace Ztail
@@ -8,21 +9,21 @@ namespace Ztail
 	public class ViewBindings : MonoBehaviour
 	{
 		[Serializable]
-		public class Binding
+		public class BindData
 		{
 			public string id;
 			public GameObject target;
 
-			public Binding(string id, GameObject target)
+			public BindData(string id, GameObject target)
 			{
 				this.id = id;
 				this.target = target;
 			}
 		}
 
-		[SerializeField] private List<Binding> m_Bindings = new List<Binding>();
+		[SerializeField] private List<BindData> m_Bindings = new();
 
-		public List<Binding> bindings => m_Bindings;
+		public List<BindData> bindings => m_Bindings;
 
 		public GameObject Find(string id)
 		{
@@ -48,79 +49,43 @@ namespace Ztail
 			return binding?.target.GetComponent(type);
 		}
 
-		public Binding FindBinding(string id)
+		public BindData FindBinding(string id)
 		{
 			return m_Bindings.Find(x => x.id == id && x.target);
 		}
 
-		public Binding GetBindingFromTarget(GameObject target)
+		public BindData GetBindingFromTarget(GameObject target)
 		{
 			return m_Bindings.Find(x => x.target == target);
 		}
 
-		public Binding AddBinding(GameObject target)
+		public BindData AddBinding(GameObject target)
 		{
 			if (target)
 			{
-				var binding = GetBindingFromTarget(target);
-				if (binding == null)
+				var bindData = GetBindingFromTarget(target);
+				if (bindData == null)
 				{
-					binding = new Binding(target.name, target);
-					m_Bindings.Add(binding);
+					bindData = new BindData(target.name, target);
+					m_Bindings.Add(bindData);
 				}
 
-				return binding;
+				return bindData;
 			}
 
 			return null;
 		}
-
 
 		public void RemoveBinding(GameObject target)
 		{
 			if (target)
 			{
-				var binding = GetBindingFromTarget(target);
-				if (binding != null)
+				var bindData = GetBindingFromTarget(target);
+				if (bindData != null)
 				{
-					m_Bindings.Remove(binding);
+					m_Bindings.Remove(bindData);
 				}
 			}
-		}
-
-		private void Awake()
-		{
-#if UNITY_EDITOR
-			if (transform.parent)
-			{
-				var parentViewBindings = transform.parent.GetComponentInParent<ViewBindings>();
-				if (parentViewBindings)
-				{
-					for (int i = parentViewBindings.bindings.Count - 1; i >= 0; i--)
-					{
-						var binding = parentViewBindings.bindings[i];
-						var viewBindings = GetTargetViewBindings(binding.target);
-						if (viewBindings == this)
-						{
-							parentViewBindings.bindings.RemoveAt(i);
-							bindings.Add(binding);
-						}
-
-					}
-				}
-			}
-#endif
-		}
-
-
-		public static ViewBindings GetTargetViewBindings(GameObject go)
-		{
-			if (go && go.transform.parent)
-			{
-				return go.transform.parent.GetComponentInParent<ViewBindings>();
-			}
-
-			return null;
 		}
 	}
 }

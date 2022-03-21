@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -10,16 +11,37 @@ namespace ZtailEditor
 	[CustomEditor(typeof(ViewBindings))]
 	public class ViewBindingsEditor : Editor
 	{
+		public static ViewBindings FindViewBindings(GameObject go)
+		{
+			if (go)
+			{
+				return FindViewBindings(go.transform);
+			}
+
+			return null;
+		}
+
+		public static ViewBindings FindViewBindings(Transform transform)
+		{
+			if (transform && transform.parent)
+			{
+				return transform.parent.GetComponentInParent<ViewBindings>();
+			}
+
+			return null;
+		}
+
 		private SerializedProperty m_Bindings;
 
 		private ReorderableList m_List;
 
+		private bool m_ScheduleRemove;
+
 		private void OnEnable()
 		{
 			m_Bindings = serializedObject.FindProperty("m_Bindings");
-			m_List = new ReorderableList(serializedObject, m_Bindings, true, true, true, true)
+			m_List = new ReorderableList(serializedObject, m_Bindings, true, true, false, false)
 			{
-
 				drawHeaderCallback = DrawListHeader,
 				drawElementCallback = DrawElement,
 				drawElementBackgroundCallback = DrawElementBackgroundCallback,
@@ -36,7 +58,6 @@ namespace ZtailEditor
 					if (index >= 0)
 					{
 						m_List.Select(index, true);
-						m_List.GrabKeyboardFocus();
 						ViewBindGameObjectInspectorGUI.lastSelectTarget = null;
 					}
 				}
@@ -45,6 +66,13 @@ namespace ZtailEditor
 
 		public override void OnInspectorGUI()
 		{
+			var current = Event.current;
+			if (current.type == EventType.KeyDown && current.keyCode == KeyCode.Delete)
+			{
+				m_ScheduleRemove = true;
+				Event.current.Use();
+			}
+
 			serializedObject.Update();
 
 			m_List.DoLayoutList();
@@ -92,13 +120,112 @@ namespace ZtailEditor
 
 		private void DrawFooter(Rect rect)
 		{
-			var width = Math.Min(rect.width, 80);
+			var width = Math.Min(rect.width * 0.5f - 1, 80);
 			rect.x = rect.x + rect.width - width;
 			rect.width = width;
-			if (GUI.Button(rect, "清理"))
+
+			if (GUI.Button(rect, "Remove") || GUI.enabled && m_ScheduleRemove)
 			{
-				
+
+				var selections = m_List.selectedIndices.ToList();
+				selections.Sort();
+				selections.Reverse();
+
+				m_List.ClearSelection();
+
+				foreach (var idx in selections)
+				{
+					m_Bindings.DeleteArrayElementAtIndex(idx);
+				}
 			}
+
+			m_ScheduleRemove = false;
+
+			rect.x -= width + 1;
+
+			if (GUI.Button(rect, "Clean"))
+			{
+				var viewBindings = target as ViewBindings;
+				if (viewBindings)
+				{
+					for (int i = viewBindings.bindings.Count - 1; i >= 0; i--)
+					{
+						var bindData = viewBindings.bindings[i];
+						if (!bindData.target || FindViewBindings(bindData.target) != viewBindings)
+						{
+							m_Bindings.DeleteArrayElementAtIndex(i);
+						}
+					}
+				}
+			}
+
+			rect.x -= width + 1;
+		}
+
+		[MenuItem("CONTEXT/ViewBindings/Get Bindings From Parent")]
+		static void GetBindingsFromParent(MenuCommand command)
+		{
+			var viewBindings = command.context as ViewBindings;
+			if (viewBindings)
+			{
+				var parentViewBindings = FindViewBindings(viewBindings.transform);
+				if (parentViewBindings)
+				{
+					for (int i = parentViewBindings.bindings.Count - 1; i >= 0; i--)
+					{
+						var bindData = parentViewBindings.bindings[i];
+						if (FindViewBindings(bindData.target) == viewBindings)
+						{
+							parentViewBindings.bindings.RemoveAt(i);
+							viewBindings.bindings.Add(bindData);
+						}
+					}
+				}
+			}
+		}
+
+		[MenuItem("CONTEXT/ViewBindings/Get Bindings From Parent", true)]
+		static bool IsValidateGetBindingsFromParent(MenuCommand command)
+		{
+			var viewBindings = command.context as ViewBindings;
+			if (viewBindings)
+			{
+				return FindViewBindings(viewBindings.transform);
+			}
+
+			return false;
+		}
+
+		[MenuItem("CONTEXT/ViewBindings/Go Back Bindings To Parent")]
+		static void GoBindingsFromParent(MenuCommand command)
+		{
+			var viewBindings = command.context as ViewBindings;
+			if (viewBindings)
+			{
+				var parentViewBindings = FindViewBindings(viewBindings.transform);
+				if (parentViewBindings)
+				{
+					for (int i = viewBindings.bindings.Count - 1; i >= 0; i--)
+					{
+						var bindData = viewBindings.bindings[i];
+						parentViewBindings.bindings.Add(bindData);
+					}
+				}
+
+				viewBindings.bindings.Clear();
+			}
+		}
+
+		[MenuItem("CONTEXT/ViewBindings/Go Back Bindings To Parent", true)]
+		static bool IsValidateGoBindingsFromParent(MenuCommand command)
+		{
+			var viewBindings = command.context as ViewBindings;
+			if (viewBindings)
+			{
+				return FindViewBindings(viewBindings.transform);
+			}
+
+			return false;
 		}
 	}
 }
