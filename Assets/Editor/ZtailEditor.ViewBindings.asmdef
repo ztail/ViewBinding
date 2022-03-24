@@ -1,0 +1,18 @@
+{
+    "name": "ZtailEditor.ViewBindings",
+    "rootNamespace": "",
+    "references": [
+        "Ztail.ViewBindgs"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

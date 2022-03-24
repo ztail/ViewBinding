@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using UnityEngine;
 
 namespace Ztail
@@ -23,7 +22,7 @@ namespace Ztail
 
 		[SerializeField] private List<BindData> m_Bindings = new();
 
-		public List<BindData> bindings => m_Bindings;
+		internal List<BindData> bindings => m_Bindings;
 
 		public GameObject Find(string id)
 		{
