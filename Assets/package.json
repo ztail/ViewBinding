@@ -3,5 +3,13 @@
 	"displayName": "View Bindings",
 	"description": "View Binding Id For UGUI",
 	"version": "1.0.0",
-	"unity": "2022.1"
+	"unity": "2022.1",
+	"author": {
+		"name": "Ztail",
+		"email": "qq792453582@outlook.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ztail/ViewBinding.git"
+	}
 }
