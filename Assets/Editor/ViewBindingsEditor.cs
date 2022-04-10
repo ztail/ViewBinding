@@ -49,16 +49,16 @@ namespace ZtailEditor
 				footerHeight = 20,
 			};
 
-			if (ViewBindGameObjectInspectorGUI.lastSelectTarget)
+			if (ViewBindingGameObjectInspectorGUI.lastSelectTarget)
 			{
 				if (target is ViewBindings viewBindings)
 				{
-					var index = viewBindings.bindings.FindIndex(x => x.target == ViewBindGameObjectInspectorGUI.lastSelectTarget);
+					var index = viewBindings.bindings.FindIndex(x => x.target == ViewBindingGameObjectInspectorGUI.lastSelectTarget);
 
 					if (index >= 0)
 					{
 						m_List.Select(index, true);
-						ViewBindGameObjectInspectorGUI.lastSelectTarget = null;
+						ViewBindingGameObjectInspectorGUI.lastSelectTarget = null;
 					}
 				}
 			}

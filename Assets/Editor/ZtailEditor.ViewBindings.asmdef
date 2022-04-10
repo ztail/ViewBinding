@@ -2,7 +2,7 @@
     "name": "ZtailEditor.ViewBindings",
     "rootNamespace": "",
     "references": [
-        "Ztail.ViewBindgs"
+        "Ztail.ViewBindings"
     ],
     "includePlatforms": [
         "Editor"

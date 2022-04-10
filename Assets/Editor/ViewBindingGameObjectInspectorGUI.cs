@@ -7,7 +7,7 @@ using Ztail;
 namespace ZtailEditor
 {
 	[InitializeOnLoad]
-	public class ViewBindGameObjectInspectorGUI
+	public class ViewBindingGameObjectInspectorGUI
 	{
 		private static readonly GUIContent s_BindToggleText = new("Binding");
 
@@ -27,7 +27,7 @@ namespace ZtailEditor
 			}
 		}
 
-		static ViewBindGameObjectInspectorGUI()
+		static ViewBindingGameObjectInspectorGUI()
 		{
 			Editor.finishedDefaultHeaderGUI += OnPostHeaderGUI;
 		}

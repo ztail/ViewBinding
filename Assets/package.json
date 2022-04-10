@@ -2,7 +2,7 @@
 	"name": "com.ztail.view-bindings",
 	"displayName": "View Bindings",
 	"description": "View Binding Id For UGUI",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"unity": "2022.1",
 	"author": {
 		"name": "Ztail",
